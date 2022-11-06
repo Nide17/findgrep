@@ -15,85 +15,120 @@ ROOTDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 UP=$(builtin cd $ROOTDIR; builtin cd ..;  pwd)
 
 # DEFAULT ARGUMENTS TO THE COMMAND
-OPTIONS=("-REn" "--color")
+DEFAULTARGS="-REn --color"
+OPTIONS="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
 
 # CURRENT SCRIPT NAME
 SCRIPTNAME=$(basename $0)
 
 # 2. FUNCTIONS
-# USAGE FUNCTION
+# USAGE FUNCTION - MANUAL
 usage() {
-    echo "Usage: $SCRIPTNAME [options] <egrep-pattern>"
-    echo "Search patterns recursively in a directory files"
-    
-    echo "Options can be one or more of:"
-    echo "use -h, --help for getting help"
+    echo -e "
+
+        #  \033[1mNAME\033[0m
+        #
+        # \t $SCRIPTNAME - Search patterns recursively in a directory's files 
+        #
+        #  \033[1mSYNOPSIS
+        #
+        # \t $SCRIPTNAME [OPTIONS] <egrep-pattern>\033[0m
+        #
+        #  \033[1mDESCRIPTION\033[0m
+        #
+        #  Recursively searches files in and below a given directory (by default, the current directory) for a specified regular expression. 
+        #  By default, the search will examine only C and C++ files—that is,  those that end in .c, .cpp, h, or .hpp
+        #  But this can be overridden via command line options.
+        #
+        #  \t\033[1m <egrep-pattern>\033[0m is an extended regular expression as used by grep -E
+        #
+        # \t \033[1mOptions can be one or more of:\033[0m
+        #
+        # \t --c \t\t\t\t mode (the default): search files ending in .c, .h, .cpp and .hpp
+        # \t --py \t\t\t Python mode: search files ending in .py, .json, and .xml
+        # \t --text \t\t\t Text mode: search files ending in .txt, .texi, .md, or beginning with the name README.
+        # \t --all \t\t\t Look at all files, not just C/C++ files
+        # \t -h | --help \t\t Print this usage message and exit
+        # \t -i | --insensitive \t Perform case insensitive search (default is case sensitive)
+        # \t --top <rootdir> \t\t Set the root directory of the search; default is cwd
+        # \t --up \t\t\t Set the root of the search to parent of cwd; equivalent to --top=..
+        #
+        #  \033[1mAUTHOR\033[0m
+        #
+        # \t Written by parmenin (Niyomwungeri Parmenide ISHIMWE) at CMU-Africa - MSIT 
+        #
+        #  \033[1mDATE\033[0m 
+        #
+        # \t November 6, 2022"
+
+    # EXITING WITH 1 OR 0 
     exit $1
 }
 
 # ERROR FUNCTION
 errorMessage() {
     echo "$SCRIPTNAME: $1"
-    exit 1
 }
 
 # 3. PROCESS OPTIONS
 # IF ARGUMENTS ARE NOT SPECIFIED
-[ $# -eq 0 ] && usage 1
+if [ $# -eq 0 ] ; then
+    usage 1
 
-# IF ONE ARG
-if [ $# -eq 1 ] ; then
-    OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
+# # IF ONE ARGUMENT IS SPECIFIED - PATTERN - to be removed
+# if [ $# -eq 1 ] ; then
+#     OPTIONS="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
 
 else
     # IF MORE THAN 1 ARGS - THE LAST ARG BE THE PATTERN - DO NOT SHIFT IT
-    while [ $# -ge 2 ] ; do
+    while [ $# -gt 0 ] ; do
 
         case "$1" in
+
+            # SEARCHING THROUGH C AND CPP FILES
+            --c) OPTIONS="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
+                ;;
 
             # PRINT HELP (USAGE) MESSAGE
             -h | --help) usage 0
                 ;;
 
             # SEARCHING THROUGH ALL FILES, NOT JUST C, CPP
-            --all) break
+            --all) OPTIONS=""
                 ;;
 
             # SEARCHING THROUGH TEXT FILES
-            --text) OPTIONS+=("--include=*.txt --include=*texi --include=*md --include=README.*")
-                ;;
-
-            # SEARCHING THROUGH C AND CPP FILES
-            --c) OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
+            --text) OPTIONS="--include=*.txt --include=*texi --include=*md --include=README.*"
                 ;;
 
             # SEARCHING THROUGH PYTHON FILES
-            --py) OPTIONS+=("--include=*.py --include=*json --include=*xml")
+            --py) OPTIONS="--include=*.py --include=*json --include=*xml"
                 ;;
 
             # CASE INSENSITIVE SEARCH
-            -i | --insensitive) OPTIONS+=("-i")
+            -i | --insensitive) DEFAULTARGS="-i"
                 ;;
                 
             # SEARCH FROM SPECIFIED DIRECTORY - to be worked on
             --top=*)
                 # SPECIFY ANYTHING NEXT TO --top 
                 DIRECT="${1##*=}" 
-                OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
+                OPTIONS="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
                 ;;
 
             --top)
                 # SPECIFY ANYTHING NEXT TO --top 
-                OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
+                OPTIONS="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
                 DIRECT="${2}"
                 ;;
 
             # SEARCH FROM PARENT DIRECTORY
-            --up) DIRECT=$PARENT
+            --up) DIRECT=$UP
                 ;;
 
             # WHEN THE SPECIFIED OPTION IS NOT AVALIABLE
             -*) errorMessage "Invalid option $1"
+                usage 1
                 ;;
 
             # DEFAULT CASE
@@ -108,4 +143,4 @@ else
 fi
 
 # 4 BODY - PERFORMING THE SEARCHING
-grep -REn --color ${OPTIONS[@]} "$PATTERN" "$DIRECT"
+grep $DEFAULTARGS ${OPTIONS[@]} "$PATTERN" "$DIRECT"
