@@ -14,13 +14,10 @@ ROOTDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 # THE PARENT DIRECTORY OF CURRENT DIRECTORY
 UP=$(builtin cd $ROOTDIR; builtin cd ..;  pwd)
 
-# OPTIONS TO CHOOSE FROM
-INCLUDEC="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
-INCLUDETXT="--include=*.txt --include=*texi --include=*md --include=README.*"
-INCLUDEPY="--include=*.py --include=*json --include=*xml"
-INCLUDECASE="-i"
+# DEFAULT ARGUMENTS TO THE COMMAND
 OPTIONS=("-REn" "--color")
 
+# CURRENT SCRIPT NAME
 SCRIPTNAME=$(basename $0)
 
 # 2. FUNCTIONS
@@ -28,6 +25,8 @@ SCRIPTNAME=$(basename $0)
 usage() {
     echo "Usage: $SCRIPTNAME [options] <egrep-pattern>"
     echo "Search patterns recursively in a directory files"
+    
+    echo "Options can be one or more of:"
     echo "use -h, --help for getting help"
     exit $1
 }
@@ -44,7 +43,7 @@ errorMessage() {
 
 # IF ONE ARG
 if [ $# -eq 1 ] ; then
-    OPTIONS+=("$INCLUDEC")
+    OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
 
 else
     # IF MORE THAN 1 ARGS - THE LAST ARG BE THE PATTERN - DO NOT SHIFT IT
@@ -53,59 +52,52 @@ else
         case "$1" in
 
             # PRINT HELP (USAGE) MESSAGE
-            -h | --help)
-                usage 0
+            -h | --help) usage 0
                 ;;
 
             # SEARCHING THROUGH ALL FILES, NOT JUST C, CPP
-            --all)
-                OPTIONS+=("")
+            --all) break
                 ;;
 
             # SEARCHING THROUGH TEXT FILES
-            --text)
-                OPTIONS+=("$INCLUDETXT")
+            --text) OPTIONS+=("--include=*.txt --include=*texi --include=*md --include=README.*")
                 ;;
 
             # SEARCHING THROUGH C AND CPP FILES
-            --c)
-                OPTIONS+=("$INCLUDEC")
+            --c) OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
                 ;;
 
             # SEARCHING THROUGH PYTHON FILES
-            --py)
-                OPTIONS+=("$INCLUDEPY")
+            --py) OPTIONS+=("--include=*.py --include=*json --include=*xml")
                 ;;
 
             # CASE INSENSITIVE SEARCH
-            -i | --insensitive)
-                OPTIONS+=("$INCLUDECASE")
+            -i | --insensitive) OPTIONS+=("-i")
                 ;;
                 
             # SEARCH FROM SPECIFIED DIRECTORY - to be worked on
             --top=*)
                 # SPECIFY ANYTHING NEXT TO --top 
                 DIRECT="${1##*=}" 
+                OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
                 ;;
 
             --top)
                 # SPECIFY ANYTHING NEXT TO --top 
+                OPTIONS+=("--include=*.c --include=*.h --include=*.hpp --include=*.cpp")
                 DIRECT="${2}"
                 ;;
 
             # SEARCH FROM PARENT DIRECTORY
-            --up)
-                DIRECT=$PARENT
+            --up) DIRECT=$PARENT
                 ;;
 
             # WHEN THE SPECIFIED OPTION IS NOT AVALIABLE
-            -*)
-                errorMessage "Invalid option $1"
+            -*) errorMessage "Invalid option $1"
                 ;;
 
             # DEFAULT CASE
-            *)
-                OPTIONS+=("")
+            *) break
                 ;;
             
         esac
