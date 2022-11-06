@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# 1. GLOBAL VARIABLES
+# echo "${@:1:${#}-1}" : GETTING ALL BEFORE LAST
+# THE PATTERN SHOULD BE THE LAST ARGUMENT
+PATTERN="${@: -1}"                        # SHOULD BE THE LAST ARGUMENT
+
+# THE CURRENT DIRECTORY
+DIRECT=.
+
+# DIRECTORY CONTAINING THE SCRIPT
+ROOTDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+
+# THE PARENT DIRECTORY OF CURRENT DIRECTORY
+UP=$(builtin cd $ROOTDIR; builtin cd ..;  pwd)
+
+# OPTIONS TO CHOOSE FROM
+INCLUDEC="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
+INCLUDET="--include=*.txt --include=*texi --include=*md --include=README.*"
+INCLUDEP="--include=*.py --include=*json --include=*xml"
+INCLUDEI="-i"
+OPTIONS=()
+
+TOP=""
+
+SCRIPTNAME=$(basename $0)
+
+# 2. FUNCTIONS
+# USAGE FUNCTION
+usage() {
+    echo "Usage: $SCRIPTNAME [options] <egrep-pattern>"
+    echo "Search patterns recursively in a directory files"
+    echo "use -h, --help for getting help"
+    exit $1
+}
+
+
+# ERROR FUNCTION
+errorMessage() {
+    echo "$SCRIPTNAME: $1"
+    exit 1
+}
+
+# 3. PROCESS OPTIONS
+# IF ARGUMENTS ARE NOT SPECIFIED
+[ $# -eq 0 ] && usage 1
+
+# IF ONE ARG
+if [ $# -eq 1 ] ; then
+    grep -REn --color --include=*.{c,h,cpp,hpp} "$PATTERN" "$DIRECT"
+
+else
+    # IF MORE THAN 1 ARGS - THE LAST ARG BE THE PATTERN - DO NOT SHIFT IT
+    while [ $# -ge 2 ] ; do
+
+        case "$1" in
+
+            # PRINT HELP (USAGE) MESSAGE
+            -h | --help)
+                usage 0
+                ;;
+
+            # SEARCHING THROUGH ALL FILES, NOT JUST C, CPP
+            --all)
+                OPTIONS+=("")
+                ;;
+
+            # SEARCHING THROUGH TEXT FILES
+            --text)
+                OPTIONS+=("$INCLUDET")
+                ;;
+
+            # SEARCHING THROUGH C AND CPP FILES
+            --c)
+                OPTIONS+=("$INCLUDEC")
+                ;;
+
+            # SEARCHING THROUGH PYTHON FILES
+            --py)
+                OPTIONS+=("$INCLUDEP")
+                ;;
+
+            # CASE INSENSITIVE SEARCH
+            -i | --insensitive)
+                OPTIONS+=("$INCLUDEI")
+                ;;
+                
+            # SEARCH FROM SPECIFIED DIRECTORY - to be worked on
+            --top=*)
+                # SPECIFY ANYTHING NEXT TO --top 
+                DIRECT="${1##*=}" 
+                ;;
+
+            --top)
+                # SPECIFY ANYTHING NEXT TO --top 
+                DIRECT="${2}"
+                ;;
+
+            # SEARCH FROM PARENT DIRECTORY
+            --up)
+                DIRECT=$PARENT
+                ;;
+
+            # WHEN THE SPECIFIED OPTION IS NOT AVALIABLE
+            -*)
+                errorMessage "Invalid option $1"
+                ;;
+
+            # DEFAULT CASE
+            *)
+                OPTIONS+=("")
+                ;;
+            
+        esac
+
+        # SHIFT TO THE NEXT (ARG) OPTION
+        shift
+    done
+
+    # PERFORMING THE SEARCHING
+    grep -REn --color ${OPTIONS[@]} "$PATTERN" "$DIRECT"
+fi
