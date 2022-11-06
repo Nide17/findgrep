@@ -3,7 +3,7 @@
 # 1. GLOBAL VARIABLES
 # echo "${@:1:${#}-1}" : GETTING ALL BEFORE LAST
 # THE PATTERN SHOULD BE THE LAST ARGUMENT
-PATTERN="${@: -1}"                        # SHOULD BE THE LAST ARGUMENT
+PATTERN="${@: -1}"
 
 # THE CURRENT DIRECTORY
 DIRECT=.
@@ -16,9 +16,9 @@ UP=$(builtin cd $ROOTDIR; builtin cd ..;  pwd)
 
 # OPTIONS TO CHOOSE FROM
 INCLUDEC="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
-INCLUDET="--include=*.txt --include=*texi --include=*md --include=README.*"
-INCLUDEP="--include=*.py --include=*json --include=*xml"
-INCLUDEI="-i"
+INCLUDETXT="--include=*.txt --include=*texi --include=*md --include=README.*"
+INCLUDEPY="--include=*.py --include=*json --include=*xml"
+INCLUDECASE="-i"
 OPTIONS=("-REn" "--color")
 
 SCRIPTNAME=$(basename $0)
@@ -44,7 +44,7 @@ errorMessage() {
 
 # IF ONE ARG
 if [ $# -eq 1 ] ; then
-    grep ${OPTIONS[@]} $INCLUDEC "$PATTERN" "$DIRECT"
+    OPTIONS+=("$INCLUDEC")
 
 else
     # IF MORE THAN 1 ARGS - THE LAST ARG BE THE PATTERN - DO NOT SHIFT IT
@@ -64,7 +64,7 @@ else
 
             # SEARCHING THROUGH TEXT FILES
             --text)
-                OPTIONS+=("$INCLUDET")
+                OPTIONS+=("$INCLUDETXT")
                 ;;
 
             # SEARCHING THROUGH C AND CPP FILES
@@ -74,12 +74,12 @@ else
 
             # SEARCHING THROUGH PYTHON FILES
             --py)
-                OPTIONS+=("$INCLUDEP")
+                OPTIONS+=("$INCLUDEPY")
                 ;;
 
             # CASE INSENSITIVE SEARCH
             -i | --insensitive)
-                OPTIONS+=("$INCLUDEI")
+                OPTIONS+=("$INCLUDECASE")
                 ;;
                 
             # SEARCH FROM SPECIFIED DIRECTORY - to be worked on
@@ -113,7 +113,7 @@ else
         # SHIFT TO THE NEXT (ARG) OPTION
         shift
     done
-
-    # 4 BODY - PERFORMING THE SEARCHING
-    grep -REn --color ${OPTIONS[@]} "$PATTERN" "$DIRECT"
 fi
+
+# 4 BODY - PERFORMING THE SEARCHING
+grep -REn --color ${OPTIONS[@]} "$PATTERN" "$DIRECT"
