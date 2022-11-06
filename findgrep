@@ -19,9 +19,7 @@ INCLUDEC="--include=*.c --include=*.h --include=*.hpp --include=*.cpp"
 INCLUDET="--include=*.txt --include=*texi --include=*md --include=README.*"
 INCLUDEP="--include=*.py --include=*json --include=*xml"
 INCLUDEI="-i"
-OPTIONS=()
-
-TOP=""
+OPTIONS=("-REn" "--color")
 
 SCRIPTNAME=$(basename $0)
 
@@ -33,7 +31,6 @@ usage() {
     echo "use -h, --help for getting help"
     exit $1
 }
-
 
 # ERROR FUNCTION
 errorMessage() {
@@ -47,7 +44,7 @@ errorMessage() {
 
 # IF ONE ARG
 if [ $# -eq 1 ] ; then
-    grep -REn --color --include=*.{c,h,cpp,hpp} "$PATTERN" "$DIRECT"
+    grep ${OPTIONS[@]} $INCLUDEC "$PATTERN" "$DIRECT"
 
 else
     # IF MORE THAN 1 ARGS - THE LAST ARG BE THE PATTERN - DO NOT SHIFT IT
@@ -117,6 +114,6 @@ else
         shift
     done
 
-    # PERFORMING THE SEARCHING
+    # 4 BODY - PERFORMING THE SEARCHING
     grep -REn --color ${OPTIONS[@]} "$PATTERN" "$DIRECT"
 fi
