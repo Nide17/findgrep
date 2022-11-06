@@ -12,25 +12,25 @@ __USAGE__: findgrep - Search patterns recursively in a directory's files
  By default, the search will examine only C and C++ files—that is,  those that end in .c, .cpp, h, or .hpp
  But this can be overridden via command line options.
     
- __ <egrep-pattern>__ is an extended regular expression as used by grep -E
+ __<egrep-pattern>__ is an extended regular expression as used by grep -E
     
 __Options can be one or more of:__
     
---c mode (the default):  search files ending in .c, .h, .cpp and .hpp
+&nbsp; --c mode (the default):  search files ending in .c, .h, .cpp and .hpp
     
---py                      Python mode: search files ending in .py, .json, and .xml
+&nbsp; --py                      Python mode: search files ending in .py, .json, and .xml
     
---text                    Text mode: search files ending in .txt, .texi, .md, or beginning with the name README.
+&nbsp; --text                    Text mode: search files ending in .txt, .texi, .md, or beginning with the name README.
     
---all                     Look at all files, not just C/C++ files
+&nbsp; --all                     Look at all files, not just C/C++ files
     
--h | --help               Print this usage message and exit
+&nbsp; -h | --help               Print this usage message and exit
     
--i | --insensitive        Perform case insensitive search (default is case sensitive)
+&nbsp; -i | --insensitive        Perform case insensitive search (default is case sensitive)
     
---top <rootdir>           Set the root directory of the search; default is cwd
+&nbsp; --top <rootdir>           Set the root directory of the search; default is cwd
     
---up                      Set the root of the search to parent of cwd; equivalent to --top=..
+&nbsp; --up                      Set the root of the search to parent of cwd; equivalent to --top=..
     
  __AUTHOR__
     
