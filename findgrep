@@ -44,8 +44,7 @@ usage() {
 
 # ERROR FUNCTION
 errorMessage() {
-    echo -e "
-    $SCRIPTNAME: $1"
+    echo -e "$SCRIPTNAME: $1"
 }
 
 # 3. PROCESS OPTIONS
