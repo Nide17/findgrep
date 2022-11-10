@@ -66,7 +66,9 @@ while [ $# -gt 0 ] ; do
             ;;
 
         # PRINT HELP (USAGE) MESSAGE
-        -h | --help) usage 0
+        --help) 
+            usage
+            exit 0
             ;;
 
         # SEARCHING THROUGH ALL FILES, NOT JUST C, CPP
